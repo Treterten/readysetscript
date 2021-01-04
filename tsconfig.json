@@ -8,7 +8,8 @@
     "jsx": "react",
     "allowJs": true,
     "alwaysStrict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "awesomeTypescriptLoaderOptions" : {
     "useCache": true,

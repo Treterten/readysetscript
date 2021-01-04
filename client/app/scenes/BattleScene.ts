@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import Enemy from '../Characters/Enemy';
 import PlayerCharacter from '../Characters/PlayerCharacter';
+import Javascript from '../CharacterInformation/CharacterStats';
 
 class BattleScene extends Phaser.Scene {
   heroes: PlayerCharacter[];
@@ -26,6 +27,7 @@ class BattleScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)');
+    this.add.image(0, 0, 'BattleBack').setOrigin(0).setDepth(-2);
     this.startBattle();
     this.sys.events.on('wake', this.startBattle, this);
   }
@@ -46,12 +48,27 @@ class BattleScene extends Phaser.Scene {
       if (this.units[this.index] instanceof PlayerCharacter) {
         this.events.emit('PlayerSelect', this.index);
       } else {
-        const r = Math.floor(Math.random() * this.heroes.length);
-        this.units[this.index].attack(this.heroes[r]);
-        this.updateHp(r);
-        this.time.addEvent({ delay: 3000, callback: this.nextTurn, callbackScope: this });
+        this.events.emit('Message', 'Activate the nodes!');
+        this.events.emit('EnemyAttack');
+        // const r = Math.floor(Math.random() * this.heroes.length);
+        // this.units[this.index].attack(this.heroes[0]);
+        // this.updateHp(r);
+        // this.time.addEvent({ delay: 3000, callback: this.nextTurn, callbackScope: this });
       }
     }
+  }
+
+  enemyAttack(challengeSuccess: boolean) {
+    const r = Math.floor(Math.random() * this.heroes.length);
+    console.log('ChallengeStatus: ', challengeSuccess);
+    this.cameras.main.shake(100);
+    if (challengeSuccess) {
+      this.units[this.index].weakAttack(this.heroes[r]);
+    } else {
+      this.units[this.index].attack(this.heroes[r]);
+    }
+    this.updateHp(r);
+    this.time.addEvent({ delay: 1000, callback: this.nextTurn, callbackScope: this });
   }
 
   checkEndBattle() {
@@ -74,13 +91,20 @@ class BattleScene extends Phaser.Scene {
     if (action === 'attack') {
       this.units[this.index].attack(this.enemies[target]);
       this.updateHp(this.heroes.length + target);
+      this.time.addEvent({ delay: 1000, callback: this.nextTurn, callbackScope: this });
     } else if (action === 'run') {
-      this.exitBattle();
+      const attempt = Math.floor(Math.random() * 2);
+      if (attempt === 1) {
+        this.endBattle();
+      } else {
+        this.events.emit('Message', 'Couldn\'t get away!');
+        this.time.addEvent({ delay: 1000, callback: this.nextTurn, callbackScope: this });
+      }
     }
-    this.time.addEvent({ delay: 3000, callback: this.nextTurn, callbackScope: this });
   }
 
   updateHp(index: number) {
+    console.log('Attempting an update', this.units[index].hp);
     if (this.units[index].maxHp !== this.units[index].hp) {
       console.log('Resizing');
       this.graphicStat[this.units[index].type][0].width = 25 - Math.round(
@@ -91,26 +115,41 @@ class BattleScene extends Phaser.Scene {
   }
 
   exitBattle() {
+    Javascript.hp = this.heroes[0].hp;
     this.scene.sleep('UIScene');
     this.scene.switch('WorldScene');
   }
 
   endBattle() {
+    // eslint-disable-next-line global-require
+    Javascript.hp = this.heroes[0].hp;
     this.heroes.length = 0;
     this.enemies.length = 0;
+    this.cameras.main.flash(5000);
     for (let i = 0; i < this.units.length; i += 1) {
+      for (let j = 0; j < 2; j += 1) {
+        this.graphicStat[this.units[i].type][j].destroy();
+      }
       this.units[i].destroy();
     }
+
     this.units.length = 0;
-    this.scene.sleep('UIScene');
-    this.scene.switch('WorldScene');
+    this.sound.stopByKey('encounter');
+    setTimeout(() => {
+      this.scene.sleep('UIScene');
+      this.scene.switch('WorldScene');
+    }, 500);
   }
 
   startBattle() {
-    const warrior = new PlayerCharacter(this, 250, 50, 'playerBattle', 1, 'Warrior', 100, 20);
+    console.log(Javascript.hp);
+    this.cameras.main.shake(500);
+    this.cameras.main.flash(500);
+    this.sound.play('encounter', { loop: true });
+    const warrior = new PlayerCharacter(this, 250, 80, 'playerBattle', 1, 'JavaScript', Javascript.hp, Javascript.maxHp, Javascript.attack);
     this.add.existing(warrior);
 
-    const bug = new Enemy(this, 50, 50, 1, 'Bug', 'bugBattle', 50, 3);
+    const bug = new Enemy(this, 50, 80, 1, 'Bug', 'bugBattle', 50, 50, 12);
     this.add.existing(bug);
 
     this.heroes = [warrior];
@@ -119,14 +158,20 @@ class BattleScene extends Phaser.Scene {
     this.index = -1;
 
     for (let i = 0; i < this.units.length; i += 1) {
-      const hpBar = this.add.rectangle(this.units[i].x, 25, 25, 5, 0xFF0000);
+      const hpBar = this.add.rectangle(this.units[i].x, 55, 25, 5, 0xFF0000);
       hpBar.depth = -1;
-      const hpLeft = this.add.rectangle(this.units[i].x, 25, 25, 5, 0x10eb4b);
+      const hpLeft = this.add.rectangle(this.units[i].x, 55, 25, 5, 0x10eb4b);
+      if (this.units[i] instanceof PlayerCharacter) {
+        const hackPoints = this.add.rectangle(this.units[i].x, 60, 25, 5, 0x172be3);
+        this.graphicStat[this.units[i].type] = [hpLeft, hpBar, hackPoints];
+      } else {
+        this.graphicStat[this.units[i].type] = [hpLeft, hpBar];
+      }
       // new Phaser.GameObjects.Rectangle(
       //   this, this.units[i].x - 12, 25, 25, 5, 0x10eb4b,
       // );
 
-      this.graphicStat[this.units[i].type] = [hpLeft, hpBar];
+      this.updateHp(i);
     }
 
     // this.health = this.add.graphics();

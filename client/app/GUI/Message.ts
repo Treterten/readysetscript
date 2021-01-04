@@ -23,13 +23,14 @@ class Message extends Phaser.GameObjects.Container {
   }
 
   showMessage(text: string = 'You need to pass the text in') {
+    console.log(text);
     this.text.setText(text);
     this.visible = true;
     if (this.hideEvent) {
       this.hideEvent.remove(false);
     }
     this.hideEvent = this.scene.time.addEvent({
-      delay: 2000, callback: this.hideMessage, callbackScope: this,
+      delay: 1000, callback: this.hideMessage, callbackScope: this,
     });
   }
 

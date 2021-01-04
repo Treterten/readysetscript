@@ -20,6 +20,8 @@ class UIScene extends Phaser.Scene {
 
   battleScene: any;
 
+  defenseScene: any;
+
   message: Message;
 
   constructor() {
@@ -28,14 +30,14 @@ class UIScene extends Phaser.Scene {
 
   create() {
     this.graphics = this.add.graphics();
-    this.graphics.lineStyle(1, 0xffffff);
-    this.graphics.fillStyle(0x031f4c, 1);
-    this.graphics.strokeRect(2, 150, 90, 100);
-    this.graphics.fillRect(2, 150, 90, 100);
-    this.graphics.strokeRect(95, 150, 90, 100);
-    this.graphics.fillRect(95, 150, 90, 100);
-    this.graphics.strokeRect(188, 150, 130, 100);
-    this.graphics.fillRect(188, 150, 130, 100);
+    this.graphics.lineStyle(2, 0xffffff);
+    this.graphics.fillStyle(0x000000, 1);
+    this.graphics.strokeRect(2, 135, 90, 100);
+    this.graphics.fillRect(2, 135, 90, 100);
+    this.graphics.strokeRect(95, 135, 90, 100);
+    this.graphics.fillRect(95, 135, 90, 100);
+    this.graphics.strokeRect(188, 135, 130, 100);
+    this.graphics.fillRect(188, 135, 130, 100);
     this.menus = this.add.container();
 
     this.heroesMenu = new HeroesMenu(195, 153, this);
@@ -49,9 +51,12 @@ class UIScene extends Phaser.Scene {
     this.menus.add(this.enemiesMenu);
 
     this.battleScene = this.scene.get('BattleScene');
+    this.defenseScene = this.scene.get('DefenseScene');
 
     this.input.keyboard.on('keydown', this.onKeyInput, this);
     this.battleScene.events.on('PlayerSelect', this.onPlayerSelect, this);
+    this.battleScene.events.on('EnemyAttack', this.startChallenge, this);
+    this.defenseScene.events.on('ChallengeFinished', this.endChallenge, this);
     this.events.on('SelectEnemies', this.onSelectEnemies, this);
     this.events.on('Enemy', this.onEnemy, this);
     this.events.on('RunAway', this.onRun, this);
@@ -105,6 +110,10 @@ class UIScene extends Phaser.Scene {
   }
 
   onRun() {
+    this.heroesMenu.deselect();
+    this.actionsMenu.deselect();
+    this.enemiesMenu.deselect();
+    this.currentMenu = null;
     this.battleScene.recievePlayerSelection('run', 0);
   }
 
@@ -112,6 +121,15 @@ class UIScene extends Phaser.Scene {
     this.remapHeroes();
     this.remapEnemies();
     this.battleScene.nextTurn();
+  }
+
+  startChallenge() {
+    this.scene.run('DefenseScene');
+  }
+
+  endChallenge(challengeStatus: boolean) {
+    this.scene.stop('DefenseScene');
+    this.battleScene.enemyAttack(challengeStatus);
   }
 }
 

@@ -14,11 +14,11 @@ class Unit extends Phaser.GameObjects.Sprite {
 
   constructor(scene: Phaser.Scene,
     x: number, y: number, texture: string, frame: number,
-    type: string, hp: number, damage: number) {
+    type: string, hp: number, maxHp: number, damage: number) {
     super(scene, x, y, texture, frame);
     this.type = type;
     this.hp = hp;
-    this.maxHp = this.hp;
+    this.maxHp = maxHp;
     this.damage = damage;
     this.living = true;
     this.menuItem = null;
@@ -31,6 +31,11 @@ class Unit extends Phaser.GameObjects.Sprite {
   attack(target: Unit) {
     target.takeDamage(this.damage);
     this.scene.events.emit('Message', `${this.type} attacks ${target.type} for ${this.damage} damage`);
+  }
+
+  weakAttack(target: Unit) {
+    target.takeDamage(Math.floor(this.damage / 2));
+    this.scene.events.emit('Message', `${this.type} attacks ${target.type} for ${this.damage / 2} damage`);
   }
 
   takeDamage(damage: number) {

@@ -6,7 +6,7 @@ class MenuItem extends Phaser.GameObjects.Text {
   }
 
   select() {
-    this.setColor('f8ff38');
+    this.setColor('#38ffd7');
   }
 
   deselect() {
