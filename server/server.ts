@@ -17,7 +17,8 @@ interface playersList {
 
 const players:playersList = {};
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const host = '0.0.0.0';
 
 app.use(express.static(path.resolve(__dirname, '../client/src/dist')));
 
@@ -49,6 +50,6 @@ io.on('connection', (socket: any) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, host, () => {
   console.log(`Listening on port ${PORT}`);
 });
