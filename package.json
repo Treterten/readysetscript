@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "dev": "ts-node-dev --respawn --transpile-only ./server/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only ./server/server.ts",
+    "start": "ts-node-dev ./server/server.ts"
   },
   "repository": {
     "type": "git",

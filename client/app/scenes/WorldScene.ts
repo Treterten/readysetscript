@@ -175,11 +175,16 @@ class WorldScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.container);
     this.cameras.main.roundPixels = true;
     this.spawns = this.physics.add.group({ classType: Phaser.GameObjects.Zone });
-    for (let i = 0; i < 30; i += 1) {
+    for (let i = 0; i < 100; i += 1) {
       const x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
       const y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
       // parameters are x, y, width, height
-      this.spawns.create(x, y, 20, 20);
+      if ((x > this.container.x + 32 || x < this.container.x - 32)
+    && (y > this.container.y + 32 || y < this.container.y - 32)) {
+        this.spawns.create(x, y, 20, 20);
+      } else {
+        i -= 1;
+      }
     }
     this.physics.add.collider(this.container, this.trees);
     this.physics.add.overlap(this.container, this.spawns, this.onMeetEnemy, false, this);
