@@ -122,10 +122,11 @@ class BattleScene extends Phaser.Scene {
 
   endBattle() {
     // eslint-disable-next-line global-require
+    const hpLeft = this.heroes[0].hp;
     Javascript.hp = this.heroes[0].hp;
     this.heroes.length = 0;
     this.enemies.length = 0;
-    this.cameras.main.flash(5000);
+    this.cameras.main.fadeOut(300, 255, 255, 255);
     for (let i = 0; i < this.units.length; i += 1) {
       for (let j = 0; j < 2; j += 1) {
         this.graphicStat[this.units[i].type][j].destroy();
@@ -135,16 +136,22 @@ class BattleScene extends Phaser.Scene {
 
     this.units.length = 0;
     this.sound.stopByKey('encounter');
-    setTimeout(() => {
-      this.scene.sleep('UIScene');
-      this.scene.switch('WorldScene');
-    }, 500);
+    if (hpLeft <= 0) {
+      setTimeout(() => {
+        this.scene.sleep('UIScene');
+        this.scene.switch('GameOverScene');
+      }, 500);
+    } else {
+      setTimeout(() => {
+        this.scene.sleep('UIScene');
+        this.scene.switch('WorldScene');
+      }, 500);
+    }
   }
 
   startBattle() {
     console.log(Javascript.hp);
-    this.cameras.main.shake(500);
-    this.cameras.main.flash(500);
+    this.cameras.main.fadeFrom(3000, 255, 255, 255);
     this.sound.play('encounter', { loop: true });
     const warrior = new PlayerCharacter(this, 250, 80, 'playerBattle', 1, 'JavaScript', Javascript.hp, Javascript.maxHp, Javascript.attack);
     this.add.existing(warrior);

@@ -80,12 +80,15 @@ class UIScene extends Phaser.Scene {
     if (this.currentMenu && this.currentMenu.selected) {
       if (event.code === 'ArrowUp') {
         this.currentMenu.moveSelectionUp();
+        this.sound.play('select');
       } else if (event.code === 'ArrowDown') {
         this.currentMenu.moveSelectionDown();
+        this.sound.play('select');
       } else if (event.code === 'ArrowRight' || event.code === 'Shift') {
         // TODO: Implement
       } else if (event.code === 'Space') {
         this.currentMenu.confirm();
+        this.sound.play('confirm');
       }
     }
   }

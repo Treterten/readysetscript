@@ -13,6 +13,7 @@ interface playersList {
   y?: number,
   playerId?: number,
   currentMessage?: string,
+  name?: string,
 }
 
 const players:playersList = {};
@@ -25,12 +26,11 @@ app.use(express.static(path.resolve(__dirname, '../client/src/dist')));
 io.on('connection', (socket: any) => {
   console.log('a user connected');
   players[socket.id] = {
-    x: Math.floor(Math.random() * 700) + 50,
-    y: Math.floor(Math.random() * 500) + 50,
+    x: 200,
+    y: 200,
     playerId: socket.id,
   };
   socket.emit('currentPlayer', players);
-  socket.broadcast.emit('newPlayer', players[socket.id]);
   socket.on('disconnect', () => {
     console.log('a user disconnected');
     delete players[socket.id];
@@ -47,6 +47,10 @@ io.on('connection', (socket: any) => {
     console.log('Got to PlayerMessage: ', text);
     players[socket.id].currentMessage = text;
     io.emit('setPlayerMessage', players[socket.id], text);
+  });
+  socket.on('PlayerName', (name: string) => {
+    players[socket.id].name = name;
+    socket.broadcast.emit('newPlayer', players[socket.id]);
   });
 });
 

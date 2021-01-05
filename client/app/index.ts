@@ -6,6 +6,8 @@ import UIScene from './scenes/UIScene';
 import MenuScene from './scenes/MenuScene';
 import DefenseScene from './scenes/DefenseScene';
 import ChatScene from './scenes/ChatScene';
+import NameScene from './scenes/NameScene';
+import GameOverScene from './scenes/GameOverScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -26,6 +28,8 @@ const config: Phaser.Types.Core.GameConfig = {
     MenuScene,
     DefenseScene,
     ChatScene,
+    NameScene,
+    GameOverScene,
   ],
   physics: {
     default: 'arcade',

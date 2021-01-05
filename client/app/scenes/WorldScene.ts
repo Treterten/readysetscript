@@ -3,6 +3,7 @@ import * as Phaser from 'phaser';
 import menuInformation from '../SceneControl/menuControl';
 import ChatScene from './ChatScene';
 import ChatMessage from '../GUI/ChatMessage';
+import Javascript from '../CharacterInformation/CharacterStats';
 
 interface playerInfoType {
    x?: number,
@@ -10,6 +11,7 @@ interface playerInfoType {
   playerId?: number,
   frame?: any,
   message?: ChatMessage,
+  name?: string,
 }
 
 class WorldScene extends Phaser.Scene {
@@ -34,6 +36,8 @@ class WorldScene extends Phaser.Scene {
   chatScene: any;
 
   container: Phaser.GameObjects.Container;
+
+  playerName: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -60,7 +64,9 @@ class WorldScene extends Phaser.Scene {
     });
 
     this.socket.on('newPlayer', (playerInfo: playerInfoType) => {
-      this.addOtherPlayers(playerInfo);
+      setTimeout(() => {
+        this.addOtherPlayers(playerInfo);
+      }, 500);
     });
 
     this.socket.on('disconnect', (playerId: string) => {
@@ -149,22 +155,26 @@ class WorldScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.input.keyboard.on('keydown-W', this.toggleMenu, this);
+    this.input.keyboard.on('keydown-Z', this.toggleMenu, this);
     this.input.keyboard.on('keydown-C', this.toggleChat, this);
 
     this.sys.events.on('wake', this.wake, this);
     this.events.on('StopMenu', this.toggleMenu, this);
     this.chatScene.events.on('SendChatMessage', this.sendMessage, this);
+    this.socket.emit('PlayerName', Javascript.name);
   }
 
   addPlayer(playerInfo: playerInfoType) {
     console.log('Adding Player...');
     this.player = this.physics.add.sprite(0, 0, 'player', 8);
+    const nameStyle = { font: '10px Arial', fill: '#ffffff' };
+    this.playerName = this.add.text(-7, 5, Javascript.name, nameStyle);
     this.player.depth = 2;
     this.physics.world.bounds.width = this.map.widthInPixels;
     this.physics.world.bounds.height = this.map.heightInPixels;
     this.container = this.add.container(playerInfo.x, playerInfo.y);
     this.container.add(this.player);
+    this.container.add(this.playerName);
     this.container.setSize(16, 16);
     this.physics.world.enable(this.container);
     this.player.setCollideWorldBounds(true);
@@ -193,7 +203,10 @@ class WorldScene extends Phaser.Scene {
   addOtherPlayers(playerInfo: playerInfoType) {
     const otherPlayer = this.add.sprite(0, 0, 'otherPlayer', 8);
     const otherContainer = this.add.container(playerInfo.x, playerInfo.y);
+    const nameStyle = { font: '10px Arial', fill: '#ffffff' };
+    const otherPlayerName = this.add.text(-7, 5, playerInfo.name, nameStyle);
     otherContainer.add(otherPlayer);
+    otherContainer.add(otherPlayerName);
     otherPlayer.playerId = playerInfo.playerId;
     otherPlayer.container = otherContainer;
     otherContainer.setSize(16, 16);

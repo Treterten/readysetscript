@@ -24,6 +24,8 @@ class Character {
 
   nextExp: number;
 
+  name: string;
+
   inventory: Item[];
 
   constructor(maxHp: number, hp: number, defense: number, hackingPoints: number,

@@ -8,7 +8,7 @@ class BootScene extends Phaser.Scene {
 
   create() {
     BrowserFs.install(window);
-    this.scene.start('WorldScene');
+    this.scene.start('NameScene');
   }
 
   preload() {
@@ -17,6 +17,10 @@ class BootScene extends Phaser.Scene {
     this.load.html('chatInput', './assets/chatForm.html');
     this.load.tilemapTiledJSON('map', './assets/test_map_2.json');
     this.load.audio('encounter', './assets/Fite.ogg');
+    this.load.audio('startup', './assets/Horizon.ogg');
+    this.load.audio('gameOver', './assets/Game Over.ogg');
+    this.load.audio('select', './assets/Select.ogg');
+    this.load.audio('confirm', './assets/Confirm.ogg');
     this.load.spritesheet('player', './assets/character.png', { frameWidth: 16, frameHeight: 16 });
     this.load.spritesheet('otherPlayer', './assets/character_other.png', { frameWidth: 16, frameHeight: 16 });
     this.load.spritesheet('miniPlayer', './assets/minPlayer.png', { frameWidth: 8, frameHeight: 8 });

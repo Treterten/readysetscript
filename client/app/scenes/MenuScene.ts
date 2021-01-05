@@ -59,10 +59,15 @@ class MenuScene extends Phaser.Scene {
     if (Javascript.hp === Javascript.maxHp) {
       this.graphics.fillRect(220, 60, 80, 10);
     } else {
-      this.graphics.fillRect(220, 60, 80 - Math.round(
+      const width = 80 - Math.round(
         (Javascript.maxHp - Javascript.hp)
         / Math.round(Javascript.maxHp / 80),
-      ), 10);
+      );
+      if (width > 0) {
+        this.graphics.fillRect(220, 60, width, 10);
+      } else {
+        this.graphics.fillRect(220, 60, 0, 10);
+      }
     }
     this.hpText = this.add.text(221, 60, `HP: ${Javascript.hp} / ${Javascript.maxHp}`, { fontSize: '10px' });
 
@@ -111,12 +116,15 @@ class MenuScene extends Phaser.Scene {
     if (this.currentMenu && this.currentMenu.selected) {
       if (event.code === 'ArrowUp') {
         this.currentMenu.moveSelectionUp();
+        this.sound.play('select');
       } else if (event.code === 'ArrowDown') {
         this.currentMenu.moveSelectionDown();
+        this.sound.play('select');
       } else if (event.code === 'ArrowRight' || event.code === 'Shift') {
         // TODO: Implement
       } else if (event.code === 'Space' || event.code === 'ArrowLeft') {
         this.currentMenu.confirm();
+        this.sound.play('confirm');
       }
     }
   }
